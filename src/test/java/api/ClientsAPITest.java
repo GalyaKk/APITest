@@ -101,7 +101,6 @@ public class ClientsAPITest {
         Assertions.assertEquals("764", getResponse.jsonPath().getString("egn"));
     }
     @Test
-    @Deprecated
     public void cantCreateSameClient(){
         Clients client1 = new Clients.ClientsBuilder()
                 .name("Jordan Ivanov")
@@ -171,7 +170,6 @@ public class ClientsAPITest {
         Assertions.assertEquals("6543", getSecondResponse.jsonPath().getString("egn"));
     }
     @Test
-    @Deprecated
     public void cantCreateClientWithSameBulstat(){
         Clients client1 = new Clients.ClientsBuilder()
                 .name("Ivan Ivanov")
@@ -195,7 +193,6 @@ public class ClientsAPITest {
         Assertions.assertEquals(400,createSecondClientResponse.statusCode());
     }
     @Test
-    @Deprecated
     public void cantCreateClientWithSameEGN(){
         Clients client1 = new Clients.ClientsBuilder()
                 .name("Rado Ivanov")
@@ -221,7 +218,6 @@ public class ClientsAPITest {
         Assertions.assertEquals(400, createResponse.statusCode());
     }
     @Test
-    @Deprecated
     public void cantCreateClientWithSameVAT(){
         Clients client1 = new Clients.ClientsBuilder()
                 .name("Stela Petrova")
