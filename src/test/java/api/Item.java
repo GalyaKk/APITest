@@ -13,6 +13,7 @@ public class Item {
     private Integer price_for_quantity;
     private String currency;
     private String quantity_unit;
+    private String quantity_unit_en;
     private String name_en;
     private boolean is_limited;
     private Integer catalog_number;

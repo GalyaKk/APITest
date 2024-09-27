@@ -75,6 +75,19 @@ public class ItemApi {
                 .get(ENDPOINT + "/" + id).prettyPeek();
     }
 
+    public Response getSingleItemWithHeaderParam(String token, Integer id, String headerParam){
+        return RestAssured.given()
+                .log().all()
+                .baseUri(BASE_URL)
+                .basePath(BASE_PATH)
+                .auth().oauth2(token)
+                .header("Content-Type", "application/json")
+                .header("User-agent", "Mozilla")
+                .header("Accept-Language", headerParam)
+                .accept(ContentType.JSON)
+                .get(ENDPOINT + "/" + id).prettyPeek();
+    }
+
     public Response updateItem(String token, int id, Item updatedItem){
         return RestAssured.given()
                 .log().all()

@@ -36,16 +36,16 @@ public class ItemApiTest {
         Login loginLogin = new Login();
         token = loginLogin.getToken();
     }
-    @After
-    public void deleteAllItems(){
-        Response getAllItemsResponse = itemApi.getAllItems(token);
-        ResponseBody body = getAllItemsResponse.body();
-        String response = body.asString();
-        List<Integer> itemIds = JsonPath.read(response, "$.items..id");
-        for (int id:itemIds) {
-           itemApi.deleteItem(token, id);
-        }
-    }
+//    @After
+//    public void deleteAllItems(){
+//        Response getAllItemsResponse = itemApi.getAllItems(token);
+//        ResponseBody body = getAllItemsResponse.body();
+//        String response = body.asString();
+//        List<Integer> itemIds = JsonPath.read(response, "$.items..id");
+//        for (int id:itemIds) {
+//           itemApi.deleteItem(token, id);
+//        }
+//    }
 
 @Test
     public void canCreateAnItemOnlyWithRequiredFields(){
@@ -364,5 +364,21 @@ public void getAnItemThatsMissing(){
     List<String> units = JsonPath.read(getUnitsRespose.asString(), "$");
     Assertions.assertTrue(units.contains("kilogram"+LocalDateTime.now().toString().substring(0,16)));
 }
+@Test
+    public void CanGetItemInEN(){
+        //have an item created
+    Item tea = new Item.ItemBuilder()
+            .name("чай")
+            .price_for_quantity(1)
+            .price(2.5)
+            .currency("лв.")
+            .name_en("tea")
+            .quantity_unit("пакет")
+            .quantity_unit_en("package").build();
+    Response createResponse = itemApi.createItem(token, tea);
+        //get the item
+    Response getResponse = itemApi.getSingleItemWithHeaderParam(token, createResponse.jsonPath().getInt("id"), "en");
+    Assertions.assertEquals("tea", getResponse.jsonPath().getString("name"));
+    }
 }
 

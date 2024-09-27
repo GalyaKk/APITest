@@ -1,5 +1,6 @@
 package api;
 
+import com.jayway.jsonpath.JsonPath;
 import io.restassured.response.Response;
 import lombok.experimental.FieldDefaults;
 import org.junit.Before;
@@ -23,6 +24,18 @@ public class ClientsAPITest {
         Assertions.assertEquals(200, getResponse.statusCode());
     }
     @Test
+    public void canGetClientWithCode(){
+        Response getResponse = clientsAPI.getClientWithQueryParam(token, "code", "3");
+        Assertions.assertEquals(200 ,getResponse.statusCode());
+        String response = getResponse.asString();
+        System.out.println(clientsAPI.getStringFromList(getResponse, "name"));
+ //       Assertions.assertEquals("Patar Ivanov", JsonPath.read(response, "$.clients..name").toString().substring(2,JsonPath.read(response, "$.clients..name").toString().length()-2));
+//        Assertions.assertEquals("Varna", getResponse.jsonPath().getString("town"));
+//        Assertions.assertEquals("Primorski blvd.", getResponse.jsonPath().getString("address"));
+//        Assertions.assertEquals(true, getResponse.jsonPath().getBoolean("is_person"));
+//        Assertions.assertEquals("888", getResponse.jsonPath().getString("egn"));
+    }
+    @Test
     public void canCreateAClientWithRequiredFields(){
         Clients client1 = new Clients.ClientsBuilder()
                 .name("Mihail Petrov")
@@ -39,22 +52,22 @@ public class ClientsAPITest {
     @Test
     public void canCreateAClientAsCompany(){
         Clients client1 = new Clients.ClientsBuilder()
-                .name("Radoslav Petrov")
+                .name("Ivan Petrov")
                 .town("Gabrovo")
                 .address("Centar")
                 .is_person(false)
-                .bulstat("345")
+                .bulstat("3456")
                 .mol("Ivailo Petrov")
                 .is_reg_vat(true)
                 .vat_number("9876").build();
         Response createResponse = clientsAPI.createClient(token, client1);
         Assertions.assertEquals(201, createResponse.statusCode());
         Response getResponse = clientsAPI.getSingleClient(token, createResponse.jsonPath().getInt("id"));
-        Assertions.assertEquals("Radoslav Petrov", getResponse.jsonPath().getString("name"));
+        Assertions.assertEquals("Ivan Petrov", getResponse.jsonPath().getString("name"));
         Assertions.assertEquals("Gabrovo", getResponse.jsonPath().getString("town"));
         Assertions.assertEquals("Centar", getResponse.jsonPath().getString("address"));
         Assertions.assertEquals(false, getResponse.jsonPath().getBoolean("is_person"));
-        Assertions.assertEquals("345", getResponse.jsonPath().getString("bulstat"));
+        Assertions.assertEquals("3456", getResponse.jsonPath().getString("bulstat"));
         Assertions.assertEquals("Ivailo Petrov", getResponse.jsonPath().getString("mol"));
         Assertions.assertEquals(true, getResponse.jsonPath().getBoolean("is_reg_vat"));
         Assertions.assertEquals("9876", getResponse.jsonPath().getString("vat_number"));
@@ -63,42 +76,42 @@ public class ClientsAPITest {
     @Test
     public void canCreateAClientAsCompanyWithoutVat(){
         Clients client1 = new Clients.ClientsBuilder()
-                .name("Aq Peneva")
+                .name("Raq Peneva")
                 .town("Gabrovo")
                 .address("Centar")
                 .is_person(false)
-                .bulstat("654")
+                .bulstat("6543")
                 .mol("Ivailo Petrov")
                 .is_reg_vat(false).build();
         Response createResponse = clientsAPI.createClient(token, client1);
         Assertions.assertEquals(201, createResponse.statusCode());
         Response getResponse = clientsAPI.getSingleClient(token, createResponse.jsonPath().getInt("id"));
-        Assertions.assertEquals("Aq Peneva", getResponse.jsonPath().getString("name"));
+        Assertions.assertEquals("Raq Peneva", getResponse.jsonPath().getString("name"));
         Assertions.assertEquals("Gabrovo", getResponse.jsonPath().getString("town"));
         Assertions.assertEquals("Centar", getResponse.jsonPath().getString("address"));
         Assertions.assertEquals(false, getResponse.jsonPath().getBoolean("is_person"));
-        Assertions.assertEquals("654", getResponse.jsonPath().getString("bulstat"));
+        Assertions.assertEquals("6543", getResponse.jsonPath().getString("bulstat"));
         Assertions.assertEquals("Ivailo Petrov", getResponse.jsonPath().getString("mol"));
         Assertions.assertEquals(false, getResponse.jsonPath().getBoolean("is_reg_vat"));
     }
     @Test
     public void canCreateClientAsPerson(){
         Clients client = new Clients.ClientsBuilder()
-                .name("Naq Ivanova")
+                .name("Petar Ivanov")
                 .town("Varna")
                 .address("Primorski blvd.")
                 .is_person(true)
-                .egn("764").build();
+                .egn("999").build();
         Response createResponse = clientsAPI.createClient(token, client);
         Assertions.assertEquals(201, createResponse.statusCode());
         int id = createResponse.jsonPath().getInt("id");
         Response getResponse = clientsAPI.getSingleClient(token, id);
         Assertions.assertEquals(200, getResponse.statusCode());
-        Assertions.assertEquals("Naq Ivanova", getResponse.jsonPath().getString("name"));
+        Assertions.assertEquals("Petar Ivanov", getResponse.jsonPath().getString("name"));
         Assertions.assertEquals("Varna", getResponse.jsonPath().getString("town"));
         Assertions.assertEquals("Primorski blvd.", getResponse.jsonPath().getString("address"));
         Assertions.assertEquals(true, getResponse.jsonPath().getBoolean("is_person"));
-        Assertions.assertEquals("764", getResponse.jsonPath().getString("egn"));
+        Assertions.assertEquals("999", getResponse.jsonPath().getString("egn"));
     }
     @Test
     public void cantCreateSameClient(){
@@ -329,5 +342,34 @@ public class ClientsAPITest {
         Assertions.assertEquals(204, deleteResponse.statusCode());
         Response getResponse = clientsAPI.getSingleClient(token, createResponse.jsonPath().getInt("id"));
         Assertions.assertEquals(404, getResponse.statusCode());
+    }
+
+    @Test
+    public void canGetClientWithHeaderParam(){
+        //create client with all fields
+        Clients client = new Clients.ClientsBuilder()
+                .name("Ива Петрова")
+                .town("Видин")
+                .address("Център")
+                .is_person(false)
+                .bulstat("119753")
+                .mol("Ивайло Петров")
+                .is_reg_vat(true)
+                .vat_number("1156")
+                .country("БГ")
+                .code("6660")
+                .office("Пазара")
+                .mol_en("Ivailo Petrov")
+                .name_en("Iva Petrova")
+                .address_en("Centar")
+                .country_en("BG")
+                .town_en("Vidin").build();
+        Response createResponse = clientsAPI.createClient(token, client);
+        //get the client in english
+        Response getResponse = clientsAPI.getClientWithHeaderParam(token, createResponse.jsonPath().getInt("id"),"en");
+        Assertions.assertEquals("Iva Petrova", getResponse.jsonPath().getString("name"));
+        Assertions.assertEquals("Centar", getResponse.jsonPath().getString("address"));
+        Assertions.assertEquals("Ivailo Petrov", getResponse.jsonPath().getString("mol"));
+        Assertions.assertEquals("BG", getResponse.jsonPath().getString("country"));
     }
 }
